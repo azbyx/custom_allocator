@@ -1,5 +1,5 @@
 # custom_allocator
-this repository is an attempt to write a custom allocator and custom standart-like contaner in C ++
+this repository is an attempt to implement a custom allocator and a like to a standard linkedlist container in C ++.
 
 OTUS course: "C++ Developer. Professional" - autumn 2020th
 

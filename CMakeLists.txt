@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(NAME_EXECUTABLE "custom_tuple")
-set(NAME_TESTS "gtest")
+set(NAME_EXECUTABLE "custom_allocator")
 
 if($ENV{TRAVIS_BUILD_NUMBER})
 	project(${NAME_EXECUTABLE} VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER}  LANGUAGES CXX)
@@ -9,10 +8,14 @@ else()
 	project(${NAME_EXECUTABLE} VERSION 0.0.1  LANGUAGES CXX)
 endif()
 
-#add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/googletest")
 
-add_executable(${NAME_EXECUTABLE} ./source/main.cpp ./header/custom_tuple.h)
-#add_executable(${NAME_TESTS} ./source/gtests.cpp)
+add_executable(${NAME_EXECUTABLE} 
+	./main.cpp 
+	./headers/Custom_allocator.h
+	./headers/list_struct.h
+	./headers/simple_strategy.h
+	./headers/extensible_simple_strategy.h
+)
 
 set_target_properties(${NAME_EXECUTABLE} PROPERTIES
     CXX_STANDARD 17
@@ -20,18 +23,13 @@ set_target_properties(${NAME_EXECUTABLE} PROPERTIES
 )
 
 target_include_directories(${NAME_EXECUTABLE}
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/source" "${CMAKE_CURRENT_SOURCE_DIR}/header"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/headers"
 )
 
 if (MSVC)
-    
-#    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
     target_compile_options(${NAME_EXECUTABLE} PRIVATE /W4)
-#    target_compile_options(${NAME_TESTS} PRIVATE /W4)
 else()
     target_compile_options(${NAME_EXECUTABLE} PRIVATE -Wall -Wextra -pedantic -Werror)
-#    target_compile_options(${NAME_TESTS} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
 install(TARGETS ${NAME_EXECUTABLE} RUNTIME DESTINATION bin)
@@ -45,7 +43,5 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT azbyx@inbox.ru)
 
 include(CPack)
-
-#enable_testing()
 
 #add_test(gltest gltest)

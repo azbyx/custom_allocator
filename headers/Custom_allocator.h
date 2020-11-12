@@ -1,8 +1,6 @@
 #ifndef CUSTOM_ALLOCATOR_H_INCLUDED
 #define CUSTOM_ALLOCATOR_H_INCLUDED
 
-#include <memory>
-
 template <typename T, std::size_t BLOCKS, template<typename, std::size_t> class Strategy>
 class Custom_allocator
 {
@@ -38,6 +36,26 @@ public:
         memory.dealloc_(p, n);
     }
 
+    template<typename U, typename ...Args>
+    void construct(U *p, Args&& ...args) const {
+        new(p) U(std::forward<Args>(args)...);
+    }
+
+    template<typename U>
+    void destroy(U *p) const {
+        p->~U();
+    }
+
 };
+
+template<typename T, std::size_t BLOCKS, template<typename, std::size_t> class Strategy>
+inline bool operator==(const Custom_allocator<T, BLOCKS, Strategy>&, const Custom_allocator<T, BLOCKS, Strategy>&) {
+    return false;
+}
+
+template<typename T, std::size_t BLOCKS, template<typename, std::size_t> class Strategy>
+inline bool operator!=(const Custom_allocator<T, BLOCKS, Strategy>&, const Custom_allocator<T, BLOCKS, Strategy>&) {
+    return false;
+}
 
 #endif // CUSTOM_ALLOCATOR_H_INCLUDED
