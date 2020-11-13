@@ -1,7 +1,9 @@
 //#define NDEBUG
+
 #include <iostream>
 #include "headers/simple_strategy.h"
 #include "headers/extensible_simple_strategy.h"
+#include "headers/extensible_realoc_strategy.h"
 #include "headers/Custom_allocator.h"
 #include "headers/list_struct.h"
 #include <map>
@@ -50,7 +52,7 @@ int main(int, char**){
 
     for(const auto & [i, v] : MapFactCustom)
         std::cout << i << " " << v << std::endl;
-/*/-----------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------
 
 auto MapFactCustomExt =
         std::map<int,
@@ -71,7 +73,29 @@ auto MapFactCustomExt =
 
     for(const auto & [i, v] : MapFactCustomExt)
         std::cout << i << " " << v << std::endl;
-*/
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+
+auto MapFactCustomDeal =
+        std::map<int,
+                 int,
+                 std::less<int>,
+                 Custom_allocator<std::pair<const int, int>, SZ, ext_realloc_strategy>>{};
+
+    print_head("std::map_Custom_extensible_realloc_allocator");
+
+    for(int i = 0; i < SZ; i++){
+        try {
+            MapFactCustomDeal.try_emplace(i, MyFactorial(i));
+        }
+        catch(const std::exception& e) {
+            std::cout << "Erorr: " << e.what() << " has occurred on the " << i << "th element while trying for allocate." << std::endl;
+        }
+    }
+
+    for(const auto & [i, v] : MapFactCustomDeal)
+        std::cout << i << " " << v << std::endl;
+
 //-----------------------------------------------------------------------------------------------------------------------------------------
     auto MapFactSTL = std::map<int, int>{};
 
@@ -134,8 +158,7 @@ auto MapFactCustomExt =
 
     print_head("Copy_ctor_LinkedList");
 
-    LinkedList<int, Custom_allocator<int, SZ, ext_simple_strategy>> llist_1;
-    LinkedList<int> llist_4;
+    LinkedList<int, Custom_allocator<int, SZ, ext_simple_strategy>> llist_1, llist_4;
 
     for (int i = 0; i < SZ; i++){
             int fct = MyFactorial(i);
@@ -173,7 +196,7 @@ auto MapFactCustomExt =
         llist_1.Add(bnc);
     }
 
-    print_addr(llist_1);
+    DEBUG_MODE(print_addr(llist_1));
 
     for(const auto& [f, s] : llist_1)
         std::cout << f << ' ' << s << std::endl;
@@ -182,7 +205,7 @@ auto MapFactCustomExt =
 
     auto llist_2 = std::move(llist_1);
 
-    print_addr(llist_2);
+    DEBUG_MODE(print_addr(llist_2));
 
     for(const auto& [f, s] : llist_2)
         std::cout << f << ' ' << s << std::endl;
@@ -194,12 +217,16 @@ auto MapFactCustomExt =
         bunch<int> bnc{i, MyFactorial(i)};
         llist_3.Add(bnc);
     }
-    print_addr(llist_3);
+
+    DEBUG_MODE(print_addr(llist_3));
+
     for(const auto& [f, s] : llist_3)
         std::cout << f << ' ' << s << std::endl;
 
     LinkedList<bunch<int>, Custom_allocator<bunch<int>, SZ, ext_simple_strategy>> llist_4 = std::move(llist_3);
-    print_addr(llist_4);
+
+    DEBUG_MODE(print_addr(llist_4));
+
     for(const auto& [f, s] : llist_4)
         std::cout << f << ' ' << s << std::endl;
 

@@ -2,6 +2,11 @@
 #define LIST_STRUCT_H_INCLUDED
 
 #define _PRETTY_ __PRETTY_FUNCTION__
+#if (defined NDEBUG)
+#define DEBUG_MODE(x)
+#else
+#define DEBUG_MODE(x) (x)
+#endif
 
 template <typename T>
 struct bunch {
@@ -112,7 +117,7 @@ public:
 
 template <typename T, typename Allocator>
 inline LinkedList<T,Allocator>::LinkedList(const LinkedList<T,Allocator>& ob){
-    std::cout << _PRETTY_ << std::endl;
+    DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
 
     node_<T>* pCurOb = ob.pHead;
     while(pCurOb) {
@@ -125,7 +130,7 @@ inline LinkedList<T,Allocator>::LinkedList(const LinkedList<T,Allocator>& ob){
 template <typename T, typename Allocator>
 template <typename Alloc_>
 inline LinkedList<T, Allocator>::LinkedList(const LinkedList<T,Alloc_>& ob) {
-    std::cout << _PRETTY_ << std::endl;
+    DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
 
     node_<T>* pCurOb = ob.GetHead();
     while(pCurOb) {
@@ -138,7 +143,7 @@ inline LinkedList<T, Allocator>::LinkedList(const LinkedList<T,Alloc_>& ob) {
 template <typename T, typename Allocator>
 inline LinkedList<T, Allocator>::LinkedList(LinkedList<T,Allocator>&& ob) noexcept
         : pHead(ob.GetHead()) {
-    std::cout << _PRETTY_ << std::endl;
+    DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
     ob.HeadToNull();
 }
 
@@ -146,7 +151,7 @@ inline LinkedList<T, Allocator>::LinkedList(LinkedList<T,Allocator>&& ob) noexce
 template <typename T, typename Allocator>
 template <typename Alloc_>
 inline LinkedList<T, Allocator>::LinkedList(LinkedList<T,Alloc_>&& ob) {
-    std::cout << _PRETTY_ << std::endl;
+    DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
     node_<T>* pCurOb = ob.GetHead();
     while(pCurOb) {
         Add(std::move(pCurOb->data));
@@ -204,7 +209,7 @@ inline void LinkedList<T, Allocator>::Add(const T& _data) {
 
 template <typename T, typename Allocator>
 inline void LinkedList<T, Allocator>::Add(T&& _data) {
-    std::cout << _PRETTY_ << std::endl;
+    DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
     node_<T>* temp;
     node_<T>* newNode = mem_.allocate(1u);
     mem_.construct(&newNode->data, std::move(_data));
