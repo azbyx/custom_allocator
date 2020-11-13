@@ -4,48 +4,55 @@
 #define _PRETTY_ __PRETTY_FUNCTION__
 
 template <typename T>
-struct node_ {
-	T data;
-	node_<T>* next;
+struct bunch {
+	T f;
+	T s;
 };
 
 
 template <typename T>
-class LListIterator : public std::iterator<std::input_iterator_tag, T> {
+struct node_ {
+	node_<T>* next;
+	T data;
+};
+
+
+template <typename T>
+class LListIterator : public std::iterator<std::forward_iterator_tag, T> {
 public:
 
     LListIterator() = default;
-    LListIterator(node_<T>* p) : pCur(p) {}
+    LListIterator(node_<T>* p) : pc_(p) {}
 
     bool operator!=(const LListIterator& it) const {
-        return pCur != it.pCur;
+        return pc_ != it.pc_;
     }
 
     bool operator==(const LListIterator& it) const {
-        return pCur == it.pCur;
+        return pc_ == it.pc_;
     }
 
     LListIterator<T>& operator++() {
-        pCur = pCur->next;
+        pc_ = pc_->next;
         return *this;
     }
 
      LListIterator<T> operator++(int) {
         LListIterator<T> tmp = *this;
-        pCur = pCur->next;
+        pc_ = pc_->next;
         return tmp;
       }
 
     typename LListIterator::reference operator*() const {
-        return pCur->data;
+        return pc_->data;
     }
 
     typename LListIterator::pointer operator->() const {
-        return pCur->data;
+        return pc_->data;
     }
 
 private:
-    node_<T>* pCur = nullptr;
+    node_<T>* pc_ = nullptr;
 };
 
 
@@ -55,16 +62,13 @@ class LinkedList {
 private:
     node_<T>* pHead = nullptr;
     node_<T>* pCur  = nullptr;
+    node_<T> pBef;
 
-    using Node_Alloc_traits = typename Allocator::template rebind<node_<T>>::other;
-    Node_Alloc_traits mem;
+    typename Allocator::template rebind<node_<T>>::other mem_;
 
 public:
-
     using iterator = LListIterator<T>;
     using const_iterator = LListIterator<const T>;
-    //template <typename Alloc_>
-    //friend LinkedList<T,Alloc_>; // Why doesn't it work?
 
     LinkedList() = default;
 
@@ -80,13 +84,18 @@ public:
 
 	~LinkedList();
 
-	void Add(T _data);
+	void Add(const T& _data);
+	void Add(T&& _data);
 
     template <typename ...Args>
     void Emplace(Args&& ...args);
 
+    T front();
+    bool empty();
+    void clear();
 	bool GetNext(T&);
 
+    LinkedList::iterator before_begin();
     LinkedList::iterator begin() {return iterator(pHead);}
     LinkedList::iterator end()   {return iterator();}
     LinkedList::const_iterator begin() const {return const_iterator(pHead);}
@@ -94,16 +103,18 @@ public:
 
     node_<T>* GetHead() const {return pHead;}
 
-    void HeadToNull() {pHead = nullptr;}
+    void* Address_of_Head() const {return pHead;}
+    void* Address_of_Head_Data() const {return pHead ? &(pHead->data) : nullptr;}
 
+    void HeadToNull() {pHead = nullptr;}
 };
 
 
 template <typename T, typename Allocator>
-LinkedList<T,Allocator>::LinkedList(const LinkedList<T,Allocator>& ob){
+inline LinkedList<T,Allocator>::LinkedList(const LinkedList<T,Allocator>& ob){
     std::cout << _PRETTY_ << std::endl;
 
-    node_<T>* pCurOb = ob.GetHead();
+    node_<T>* pCurOb = ob.pHead;
     while(pCurOb) {
         Add(pCurOb->data);
         pCurOb = pCurOb->next;
@@ -113,7 +124,7 @@ LinkedList<T,Allocator>::LinkedList(const LinkedList<T,Allocator>& ob){
 
 template <typename T, typename Allocator>
 template <typename Alloc_>
-LinkedList<T, Allocator>::LinkedList(const LinkedList<T,Alloc_>& ob) {
+inline LinkedList<T, Allocator>::LinkedList(const LinkedList<T,Alloc_>& ob) {
     std::cout << _PRETTY_ << std::endl;
 
     node_<T>* pCurOb = ob.GetHead();
@@ -125,42 +136,35 @@ LinkedList<T, Allocator>::LinkedList(const LinkedList<T,Alloc_>& ob) {
 
 
 template <typename T, typename Allocator>
-LinkedList<T, Allocator>::LinkedList(LinkedList<T,Allocator>&& ob) noexcept
+inline LinkedList<T, Allocator>::LinkedList(LinkedList<T,Allocator>&& ob) noexcept
         : pHead(ob.GetHead()) {
     std::cout << _PRETTY_ << std::endl;
     ob.HeadToNull();
 }
 
+
 template <typename T, typename Allocator>
 template <typename Alloc_>
-LinkedList<T, Allocator>::LinkedList(LinkedList<T,Alloc_>&& ob) {
+inline LinkedList<T, Allocator>::LinkedList(LinkedList<T,Alloc_>&& ob) {
     std::cout << _PRETTY_ << std::endl;
-    if (!ob.GetHead())
-        return;
-
-    pHead = mem.allocate(1u);
-    mem.construct(&pHead->data, std::move(ob.GetHead()->data));
-    pHead->next = nullptr;
-    pCur = pHead;
-
-    node_<T>* newNode;
-    node_<T>* pCurOb = ob.GetHead()->next;
-
-    while (pCurOb) {
-        newNode = mem.allocate(1u);
-        mem.construct(&newNode->data, std::move(pCurOb->data));
-        newNode->next = nullptr;
-        pCur->next = newNode;
-        pCur = pCur->next;
+    node_<T>* pCurOb = ob.GetHead();
+    while(pCurOb) {
+        Add(std::move(pCurOb->data));
         pCurOb = pCurOb->next;
     }
     ob.HeadToNull();
 }
 
 
+template <typename T, typename Allocator>
+inline LinkedList<T, Allocator>::~LinkedList() {
+
+	clear();
+}
+
 
 template <typename T, typename Allocator>
-LinkedList<T, Allocator>::~LinkedList() {
+inline void LinkedList<T, Allocator>::clear() {
 
 	node_<T>* temp;
 	pCur = pHead;
@@ -168,19 +172,20 @@ LinkedList<T, Allocator>::~LinkedList() {
 		temp = pCur;
 		pCur = pCur->next;
 
-        mem.destroy(&temp->data); // temp or data? I think 'data' cos we constructed 'data' before
-        mem.deallocate(temp, 1);  // temp or data? I think 'temp' cos we allocated node_<T>
+        mem_.destroy(&temp->data);
+        mem_.deallocate(temp, 1);
 	}
+	HeadToNull();
 }
 
 
 template <typename T, typename Allocator>
-void LinkedList<T, Allocator>::Add(T _data) {
+inline void LinkedList<T, Allocator>::Add(const T& _data) {
 
     node_<T>* temp;
-    node_<T>* newNode = mem.allocate(1u);
+    node_<T>* newNode = mem_.allocate(1u);
 
-    mem.construct(&newNode->data, _data);
+    mem_.construct(&newNode->data, _data);
 
 	newNode->next = nullptr;
 
@@ -198,12 +203,33 @@ void LinkedList<T, Allocator>::Add(T _data) {
 
 
 template <typename T, typename Allocator>
+inline void LinkedList<T, Allocator>::Add(T&& _data) {
+    std::cout << _PRETTY_ << std::endl;
+    node_<T>* temp;
+    node_<T>* newNode = mem_.allocate(1u);
+    mem_.construct(&newNode->data, std::move(_data));
+
+	newNode->next = nullptr;
+	if (!pHead)
+		pHead = pCur = newNode;
+	else {
+		pCur = pHead;
+		while(pCur) {
+			temp = pCur;
+			pCur = pCur->next;
+		}
+		temp->next = newNode;
+	}
+}
+
+
+template <typename T, typename Allocator>
 template <typename ...Args>
-void LinkedList<T, Allocator>::Emplace(Args&& ...args) {
+inline void LinkedList<T, Allocator>::Emplace(Args&& ...args) {
 
     node_<T>* temp;
-    node_<T>* newNode = mem.allocate(1u);
-    mem.construct(&newNode->data, std::forward<Args>(args)...);
+    node_<T>* newNode = mem_.allocate(1u);
+    mem_.construct(&newNode->data, std::forward<Args>(args)...);
     newNode->next = nullptr;
 
     if (!pHead)
@@ -220,7 +246,7 @@ void LinkedList<T, Allocator>::Emplace(Args&& ...args) {
 
 
 template <typename T, typename Allocator>
-bool LinkedList<T, Allocator>::GetNext(T& _data) {
+inline bool LinkedList<T, Allocator>::GetNext(T& _data) {
 
     node_<T>* temp;
 	if (pCur) {
@@ -231,6 +257,24 @@ bool LinkedList<T, Allocator>::GetNext(T& _data) {
 	}
 	else
 		return false;
+}
+
+
+template <typename T, typename Allocator>
+inline T LinkedList<T, Allocator>::front() {
+    return *begin();
+}
+
+template <typename T, typename Allocator>
+inline bool LinkedList<T, Allocator>::empty() {
+    return !pHead;
+}
+template <typename T, typename Allocator>
+inline typename LinkedList<T, Allocator>::iterator
+    LinkedList<T, Allocator>::before_begin() {
+
+    pBef.next = pHead;
+    return iterator(&pBef);
 }
 
 #endif // LIST_STRUCT_H_INCLUDED

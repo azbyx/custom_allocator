@@ -18,14 +18,10 @@ public:
     Custom_allocator() = default;
     ~Custom_allocator() = default;
     Custom_allocator(const Custom_allocator &) = delete;
-
-    /*Custom_allocator(Custom_allocator &&ob) noexcept
-    {
-        DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
-        pMemory = ob.pMemory;
-        used = ob.used;
-        ob.pMemory = nullptr;
-        ob.used = 0;
+    /*
+    Custom_allocator(Custom_allocator&& ob) noexcept {
+        memory = ob.memory;
+        ob.memory = nullptr;
     }*/
 
     T* allocate(size_t n) {

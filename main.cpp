@@ -23,6 +23,10 @@ int main(int, char**){
         std::string filler(length, '_');
         std::cout << filler << str << filler << std::endl;
     };
+
+    auto print_addr = [](const auto& cont){
+        std::cout << "Head address: " << cont.Address_of_Head() << ". Head data address: " << cont.Address_of_Head_Data() << std::endl;
+    };
 //------------------------------------------------------------------------------------------------------------------------------------
     auto MapFactCustom =
         std::map<int,
@@ -125,9 +129,13 @@ auto MapFactCustomExt =
     print_head("Copy_ctor_LinkedList");
 
     LinkedList<int, Custom_allocator<int, SZ, ext_simple_strategy>> llist_1;
+    LinkedList<int> llist_4;
 
-    for (int i = 0; i < SZ; i++)
-            llist_1.Add(MyFactorial(i));
+    for (int i = 0; i < SZ; i++){
+            int fct = MyFactorial(i);
+            llist_1.Add(fct);
+            llist_4.Add(fct);
+    }
 
     for(const auto& it : llist_1)
         std::cout << it << std::endl;
@@ -141,7 +149,7 @@ auto MapFactCustomExt =
 
     print_head("Copy_with_different_allocators");
 
-    LinkedList<int> llist_3 = llist_1;
+    LinkedList<int> llist_3 = llist_4;
 
     for(const auto& it : llist_3)
         std::cout << it << std::endl;
@@ -153,29 +161,58 @@ auto MapFactCustomExt =
 
     print_head("Move_ctor_LinkedList");
 
-    LinkedList<int, Custom_allocator<int, SZ, ext_simple_strategy>> llist_1;
+    LinkedList<bunch<int>, Custom_allocator<bunch<int>, SZ, ext_simple_strategy>> llist_1;
 
-    for (int i = 0; i < SZ; i++)
-            llist_1.Add(MyFactorial(i));
+    for (int i = 0; i < SZ; i++){
+        bunch<int> bnc{i, MyFactorial(i)};
+        llist_1.Add(bnc);
+    }
 
-    for(const auto& it : llist_1)
-        std::cout << it << std::endl;
+    print_addr(llist_1);
+
+    for(const auto& [f, s] : llist_1)
+        std::cout << f << ' ' << s << std::endl;
 
     print_head("Move_with_the_same_allocators");
 
     auto llist_2 = std::move(llist_1);
 
-    for(const auto& it : llist_2)
-        std::cout << it << std::endl;
+    print_addr(llist_2);
+
+    for(const auto& [f, s] : llist_2)
+        std::cout << f << ' ' << s << std::endl;
 
     print_head("Move_with_different_allocators");
 
-    LinkedList<int> llist_3 = std::move(llist_2);
+    LinkedList<bunch<int>> llist_3;
+    for (int i = 0; i < SZ; i++){
+        bunch<int> bnc{i, MyFactorial(i)};
+        llist_3.Add(bnc);
+    }
+    print_addr(llist_3);
+    for(const auto& [f, s] : llist_3)
+        std::cout << f << ' ' << s << std::endl;
 
-    for(const auto& it : llist_3)
-        std::cout << it << std::endl;
+    LinkedList<bunch<int>, Custom_allocator<bunch<int>, SZ, ext_simple_strategy>> llist_4 = std::move(llist_3);
+    print_addr(llist_4);
+    for(const auto& [f, s] : llist_4)
+        std::cout << f << ' ' << s << std::endl;
+
+    std::cout << llist_4.front().f << ' ' << llist_4.empty() << std::endl;
+    llist_4.clear();
+    std::cout << llist_4.empty() << std::endl;
     }
 //-----------------------------------------------------------------------------------------------------------------------------------------
+    print_head("checking_iterators_LinkedList");
+    auto it_l3 = std::begin(llist_3);
+    *it_l3 = 222;
+    std::cout << *it_l3 << std::endl;
+    auto it_bef_beg = llist_3.before_begin();
+    std::cout << *++it_bef_beg << std::endl;
+    ++it_l3;
+    std::cout << *++it_l3 << '=' << *std::next(it_l3) << std::endl;
+    for(const auto& it : llist_3)
+        std::cout << it << std::endl;
 
     [[maybe_unused]] char a;
     a = getchar();
