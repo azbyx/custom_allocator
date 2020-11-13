@@ -2,10 +2,7 @@
 #define CUSTOM_ALLOCATOR_H_INCLUDED
 
 template <typename T, std::size_t BLOCKS, template<typename, std::size_t> class Strategy>
-class Custom_allocator
-{
-private:
-    Strategy<T, BLOCKS> memory;
+class Custom_allocator : protected Strategy<T, BLOCKS> {
 
 public:
     using value_type = T;
@@ -17,19 +14,14 @@ public:
 
     Custom_allocator() = default;
     ~Custom_allocator() = default;
-    Custom_allocator(const Custom_allocator &) = delete;
-    /*
-    Custom_allocator(Custom_allocator&& ob) noexcept {
-        memory = ob.memory;
-        ob.memory = nullptr;
-    }*/
+    Custom_allocator(const Custom_allocator&) = delete;
 
     T* allocate(size_t n) {
-        return memory.alloc_(n);
+        return Strategy<T, BLOCKS>::allocate(n);
     }
 
     void deallocate(T* p, std::size_t n ) {
-        memory.dealloc_(p, n);
+        Strategy<T, BLOCKS>::deallocate(p, n);
     }
 
     template<typename U, typename ...Args>

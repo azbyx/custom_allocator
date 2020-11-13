@@ -9,8 +9,8 @@ public:
     simple_strategy(const simple_strategy&) = delete;
     ~simple_strategy();
 
-    T* alloc_(std::size_t);
-    void dealloc_(T*, std::size_t);
+    T* allocate(std::size_t);
+    void deallocate(T*, std::size_t);
 
 private:
     T* chunk_;
@@ -29,7 +29,7 @@ inline simple_strategy<T, SZ>::~simple_strategy() {
 }
 
 template<typename T, std::size_t SZ>
-inline T* simple_strategy<T, SZ>::alloc_(std::size_t n) {
+inline T* simple_strategy<T, SZ>::allocate(std::size_t n) {
     if(n == 0)
         return nullptr;
 
@@ -48,6 +48,6 @@ inline T* simple_strategy<T, SZ>::alloc_(std::size_t n) {
 }
 
 template<typename T, std::size_t SZ>
-inline void simple_strategy<T, SZ>::dealloc_(T*, std::size_t){} // memory after deallocation is not reused
+inline void simple_strategy<T, SZ>::deallocate(T*, std::size_t){} // memory after deallocation is not reused
 
 #endif // SYMPLE_STRATEGY_H

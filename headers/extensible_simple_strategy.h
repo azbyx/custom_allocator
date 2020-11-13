@@ -11,8 +11,8 @@ public:
     ext_simple_strategy(const ext_simple_strategy&) = delete;
     ~ext_simple_strategy();
 
-    T* alloc_(std::size_t);
-    void dealloc_(T*, std::size_t);
+    T* allocate(std::size_t);
+    void deallocate(T*, std::size_t);
 
 private:
     void add_block_();
@@ -42,7 +42,7 @@ inline void ext_simple_strategy<T, SZ>::add_block_() {
 }
 
 template<typename T, std::size_t SZ>
-inline T* ext_simple_strategy<T, SZ>::alloc_(std::size_t n) {
+inline T* ext_simple_strategy<T, SZ>::allocate(std::size_t n) {
     if(n == 0)
         return nullptr;
 
@@ -72,6 +72,6 @@ inline T* ext_simple_strategy<T, SZ>::alloc_(std::size_t n) {
 }
 
 template<typename T, std::size_t SZ>
-inline void ext_simple_strategy<T, SZ>::dealloc_(T*, std::size_t){} // memory after deallocation is not reused
+inline void ext_simple_strategy<T, SZ>::deallocate(T*, std::size_t){} // memory after deallocation is not reused
 
 #endif // EXTENSIBLE_SIMPLE_STRATEGY_H_INCLUDED

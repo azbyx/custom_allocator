@@ -62,7 +62,7 @@ class LinkedList {
 private:
     node_<T>* pHead = nullptr;
     node_<T>* pCur  = nullptr;
-    node_<T> pBef;
+    node_<T> nBef;
 
     typename Allocator::template rebind<node_<T>>::other mem_;
 
@@ -271,10 +271,10 @@ inline bool LinkedList<T, Allocator>::empty() {
 }
 template <typename T, typename Allocator>
 inline typename LinkedList<T, Allocator>::iterator
-    LinkedList<T, Allocator>::before_begin() {
+  LinkedList<T, Allocator>::before_begin() {
 
-    pBef.next = pHead;
-    return iterator(&pBef);
+    nBef.next = pHead;
+    return iterator(&nBef);
 }
 
 #endif // LIST_STRUCT_H_INCLUDED

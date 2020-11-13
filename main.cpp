@@ -9,6 +9,9 @@
 
 static const int SZ = 10;
 
+template<typename T>
+using LLi = LinkedList<T, Custom_allocator<T, SZ, ext_simple_strategy>>;
+
 int MyFactorial(int n){
 	int res = 1;
     for (int i = 2; i <= n; i++)
@@ -24,7 +27,7 @@ int main(int, char**){
         std::cout << filler << str << filler << std::endl;
     };
 
-    auto print_addr = [](const auto& cont){
+    [[maybe_unused]] auto print_addr = [](const auto& cont){
         std::cout << "Head address: " << cont.Address_of_Head() << ". Head data address: " << cont.Address_of_Head_Data() << std::endl;
     };
 //------------------------------------------------------------------------------------------------------------------------------------
@@ -34,7 +37,7 @@ int main(int, char**){
                  std::less<int>,
                  Custom_allocator<std::pair<const int, int>, SZ, simple_strategy>>{};
 
-    print_head("Custom_simple_allocator+std::map");
+    print_head("std::map_Custom_simple_allocator");
 
     for(int i = 0; i < SZ+2; i++){
         try {
@@ -47,7 +50,7 @@ int main(int, char**){
 
     for(const auto & [i, v] : MapFactCustom)
         std::cout << i << " " << v << std::endl;
-//-----------------------------------------------------------------------------------------------------------------------------------------
+/*/-----------------------------------------------------------------------------------------------------------------------------------------
 
 auto MapFactCustomExt =
         std::map<int,
@@ -68,30 +71,18 @@ auto MapFactCustomExt =
 
     for(const auto & [i, v] : MapFactCustomExt)
         std::cout << i << " " << v << std::endl;
-
+*/
 //-----------------------------------------------------------------------------------------------------------------------------------------
     auto MapFactSTL = std::map<int, int>{};
 
-    print_head("std::allocator+std::map");
+    print_head("std::map_std::allocator");
 
     for(int i = 0; i < SZ+2; i++)
-        MapFactSTL.try_emplace(i, i);
+        MapFactSTL.try_emplace(i, MyFactorial(i));
 
     for (const auto & [i, v] : MapFactSTL)
         std::cout << i << " " << v << std::endl;
 
-
-//-----------------------------------------------------------------------------------------------------------------------------------------
-
-    print_head("CustomList+std::allocator");
-
-    LinkedList<int> Third;
-
-    for (int i = 0; i < SZ; i++)
-        Third.Add(MyFactorial(i));
-
-    for(auto it = Third.begin(); it != Third.end(); ++it)
-        std::cout << *it << std::endl;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -100,8 +91,9 @@ auto MapFactCustomExt =
     LinkedList<int, Custom_allocator<int, SZ, simple_strategy>> llist_CustAlloc;
 
     for (int i = 0; i < SZ + 2; i++) {
+        int fact = MyFactorial(i);
         try {
-            llist_CustAlloc.Add(MyFactorial(i));
+            llist_CustAlloc.Add(fact);
         }
         catch(const std::exception& e) {
             std::cout << "Erorr: " << e.what() << " has occurred on the " << i << "th element while trying for allocate." << std::endl;
@@ -111,6 +103,20 @@ auto MapFactCustomExt =
     //for(auto it = llist_CustAlloc.begin(); it != llist_CustAlloc.end(); ++it)
     for(const auto& it : llist_CustAlloc)
         std::cout << it << std::endl;
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+
+    print_head("CustomList_std::allocator");
+
+    LinkedList<int> Third;
+
+    for (int i = 0; i < SZ+2; i++){
+        int fact = MyFactorial(i);
+        Third.Add(fact);
+    }
+
+    for(auto it = Third.begin(); it != Third.end(); ++it)
+        std::cout << *it << std::endl;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -161,8 +167,7 @@ auto MapFactCustomExt =
 
     print_head("Move_ctor_LinkedList");
 
-    LinkedList<bunch<int>, Custom_allocator<bunch<int>, SZ, ext_simple_strategy>> llist_1;
-
+    LLi<bunch<int>> llist_1;
     for (int i = 0; i < SZ; i++){
         bunch<int> bnc{i, MyFactorial(i)};
         llist_1.Add(bnc);
