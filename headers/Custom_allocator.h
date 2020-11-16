@@ -30,7 +30,7 @@ public:
     }
 
     template<typename U>
-    void destroy(U *p) const {
+    void destroy(U*p) const {
         p->~U();
     }
 
