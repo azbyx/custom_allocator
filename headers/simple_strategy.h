@@ -50,4 +50,5 @@ inline T* simple_strategy<T, SZ>::allocate(std::size_t n) {
 template<typename T, std::size_t SZ>
 inline void simple_strategy<T, SZ>::deallocate(T*, std::size_t){} // memory after deallocation is not reused
 
+
 #endif // SYMPLE_STRATEGY_H

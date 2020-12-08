@@ -84,25 +84,6 @@ TEST(Filling_container_using_the_Add_method, with_lvalue) {
 
 }
 
-TEST(Filling_container_using_the_Add_method, with_rvalue) {
-
-    // Arrange
-    LList_ext_realoc<bunch<size_t>> custom_list_rv;
-    LList_ext_realoc<bunch<size_t>>::size_type size_list_rv{0},
-                                               requires_size{SZ + 5};
-
-    // Act
-    for (size_t  i = 0; i < requires_size; i++){
-            custom_list_rv.Add(bunch<size_t>{i, MyFactorial(i)});
-    }
-    for (auto it = custom_list_rv.begin(); it != custom_list_rv.end(); ++it){
-            ++size_list_rv;
-    }
-
-    // Assert
-    ASSERT_EQ(requires_size, size_list_rv);
-
-}
 
 TEST(Filling_container_using_the_Emplace_method, by_value) {
 
@@ -130,3 +111,4 @@ int main(int argc, char** argv) {
     return RUN_ALL_TESTS();
 
 }
+

@@ -38,7 +38,7 @@ public:
 
 template<typename T, std::size_t BLOCKS, template<typename, std::size_t> class Strategy>
 inline bool operator==(const Custom_allocator<T, BLOCKS, Strategy>&, const Custom_allocator<T, BLOCKS, Strategy>&) {
-    return false;
+    return true;
 }
 
 template<typename T, std::size_t BLOCKS, template<typename, std::size_t> class Strategy>

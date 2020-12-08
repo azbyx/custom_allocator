@@ -8,7 +8,7 @@
 #include "headers/list_struct.h"
 #include <map>
 
-static const int SZ = 10;
+static const int SZ = 10; // size of allocator
 
 int MyFactorial(int n){
     int res = 1;
@@ -19,7 +19,16 @@ int MyFactorial(int n){
 }
 
 template<typename T>
-using LLi = LinkedList<T, Custom_allocator<T, SZ, ext_simple_strategy>>;
+using allocatorSimple = Custom_allocator<T, SZ, simple_strategy>;
+
+template<typename T>
+using allocatorExtendSimple = Custom_allocator<T, SZ, ext_simple_strategy>;
+
+template<typename T>
+using allocatorReallocate = Custom_allocator<T, SZ, ext_realloc_strategy>;
+
+template<typename T>
+using LLi = LinkedList<T, allocatorExtendSimple<T>>;
 
 int main(int, char**){
 
@@ -59,7 +68,7 @@ int main(int, char**){
         std::map<int,
                  int,
                  std::less<int>,
-                 Custom_allocator<std::pair<const int, int>, SZ, simple_strategy>>{};
+                 allocatorSimple<std::pair<const int, int>>>{};
 
     print_head("Custom_simple_allocator+std::map");
 
@@ -90,9 +99,9 @@ int main(int, char**){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 
-    print_head("CustomList+Custom_simple_allocator(here are allocating all 10 elements, that were reserved)");
+    print_head("CustomList+Custom_simple_allocator");
 
-    LinkedList<int, Custom_allocator<int, SZ, simple_strategy>> llist_CustAlloc;
+    LinkedList<int, allocatorSimple<int>> llist_CustAlloc;
 
     for (int i = 0; i < SZ; i++) {
         try {
@@ -110,7 +119,7 @@ int main(int, char**){
 
     print_head("CustomList+Custom_simple_allocator(here are trying to allocate 12 elements)");
 
-    LinkedList<int, Custom_allocator<int, SZ, simple_strategy>> llist_CustAlloc_12;
+    LinkedList<int, allocatorSimple<int>> llist_CustAlloc_12;
 
     for (int i = 0; i < SZ+2; i++) {
         int fact = MyFactorial(i);
@@ -135,11 +144,12 @@ int main(int, char**){
         std::map<int,
                  int,
                  std::less<int>,
-                 Custom_allocator<std::pair<const int, int>, SZ, ext_simple_strategy>>{};
+                 allocatorExtendSimple<std::pair<const int, int>>
+                >{};
 
     print_head("Custom_extensible_simple_allocator+std::map");
 
-    for(int i = 0; i < SZ+32; i++){
+    for(int i = 0; i < SZ+4; i++){
         try {
             MapFactCustomExt.try_emplace(i, i);
         }
@@ -157,7 +167,8 @@ int main(int, char**){
         std::map<int,
                  int,
                  std::less<int>,
-                 Custom_allocator<std::pair<const int, int>, SZ, ext_realloc_strategy>>{};
+                 allocatorReallocate<std::pair<const int, int>>
+                >{};
 
     print_head("Custom_extensible_realloc_allocator+std::map");
 
@@ -177,7 +188,7 @@ int main(int, char**){
 
     print_head("CustomList+Custom_ext_simple_allocator");
 
-    LinkedList<int, Custom_allocator<int, SZ, ext_simple_strategy>> llist_CustExtAlloc;
+    LinkedList<int, allocatorExtendSimple<int>> llist_CustExtAlloc;
 
     for (int i = 0; i < SZ + 2; i++)
             llist_CustExtAlloc.Add(MyFactorial(i));
@@ -186,10 +197,10 @@ int main(int, char**){
         std::cout << it << std::endl;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
-
+/*
     print_head("Copy_ctor_of_LinkedList");
 
-    LinkedList<int, Custom_allocator<int, SZ, ext_simple_strategy>> llist_1, llist_4;
+    LinkedList<int, allocatorExtendSimple<int>> llist_1, llist_4;
 
     for (int i = 0; i < SZ; i++){
             int fct = MyFactorial(i);
@@ -254,7 +265,7 @@ int main(int, char**){
     for(const auto& [f, s] : llist_3)
         std::cout << f << ' ' << s << std::endl;
 
-    LinkedList<bunch<int>, Custom_allocator<bunch<int>, SZ, ext_simple_strategy>> llist_4 = std::move(llist_3);
+    LinkedList<bunch<int>, allocatorExtendSimple<bunch<int>>> llist_4 = std::move(llist_3);
 
     DEBUG_MODE(print_addr(llist_4));
 
@@ -268,7 +279,7 @@ int main(int, char**){
 //-----------------------------------------------------------------------------------------------------------------------------------------
     print_head("checking_iterators_LinkedList");
 
-    LinkedList<int, Custom_allocator<int, SZ, ext_realloc_strategy>> llist_30;
+    LinkedList<int, allocatorReallocate<int>> llist_30;
     for (int i = 0; i < SZ + 1; i++){
             int fct = MyFactorial(i);
             llist_30.Add(fct);
@@ -309,7 +320,7 @@ int main(int, char**){
     std::cout << std::endl << "Make sure that the addresses of the new elements match the addresses of the earlier erased ones." << std::endl;
     std::cout << "This confirms that an allocator with the ext_realloc_strategy is reusing memory." << std::endl;
 //-----------------------------------------------------------------------------------------------------------------------------------------
-/*
+
     [[maybe_unused]] char a;
     a = getchar();
 */

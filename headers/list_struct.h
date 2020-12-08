@@ -93,7 +93,6 @@ private:
 public:
     using iterator = LListIterator<T>;
     using size_type = size_t;
-    //using const_iterator = LListConstIterator<const T>;
 
     LinkedList() = default;
 
@@ -110,7 +109,6 @@ public:
 	~LinkedList();
 
 	void Add(const T& _data);
-	void Add(T&& _data);
 
     template <typename ...Args>
     void Emplace(Args&& ...args);
@@ -127,10 +125,7 @@ public:
     LinkedList::iterator before_begin();
     LinkedList::iterator begin() {return iterator(pHead);}
     LinkedList::iterator end()   {return iterator();}
-    /*
-    LinkedList::const_iterator begin() const {return const_iterator(pHead);}
-    LinkedList::const_iterator end() const  {return const_iterator();}
-    */
+
     node_<T>* GetHead() const {return pHead;}
 #ifndef NDEBUG
     void* Address_of_Head() const {return pHead;}
@@ -219,27 +214,6 @@ inline void LinkedList<T, Allocator>::Add(const T& _data) {
 
 	newNode->next = nullptr;
 
-	if (!pHead)
-		pHead = pCur = newNode;
-	else {
-		pCur = pHead;
-		while(pCur) {
-			temp = pCur;
-			pCur = pCur->next;
-		}
-		temp->next = newNode;
-	}
-}
-
-
-template <typename T, typename Allocator>
-inline void LinkedList<T, Allocator>::Add(T&& _data) {
-    DEBUG_MODE(std::cout << _PRETTY_ << std::endl);
-    node_<T>* temp;
-    node_<T>* newNode = NodeAllocator.allocate(1u);
-    NodeAllocator.construct(&newNode->data, std::move(_data));
-
-	newNode->next = nullptr;
 	if (!pHead)
 		pHead = pCur = newNode;
 	else {
